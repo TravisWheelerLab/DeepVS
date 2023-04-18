@@ -1,0 +1,12 @@
+pdbbind_dir: '/xdisk/twheeler/jgaiser/deepvs2/pdbbind/'
+
+interaction_profile_file_template: 'structure_data/interaction_profiles/%s_ip.pkl'
+mol_graph_file_template: 'graph_data/mol_graphs/%s_mol.pkl'
+pocket_graph_file_template: 'graph_data/pocket_graphs/%s_pocket.pkl'
+training_sample_file_template: 'graph_data/training_samples/%s_sample.pkl'
+vox_embed_graph_file_template: 'graph_data/vox_embeds/%s_vox.pkl'
+
+INTERACTION_LABELS: ['halogenbond', 'hbond_a', 'hbond_d', 'hydroph_interaction', 'pication_c', 'pication_r', 'pistack', 'saltbridge_n', 'saltbridge_p'] 
+MOL_ATOM_LABELS: ['*', 'As', 'B', 'Be', 'Br', 'C', 'Cl', 'Co', 'Cu', 'F', 'Fe', 'H', 'I', 'Ir', 'Mg', 'N', 'O', 'Os', 'P', 'Pt', 'Re', 'Rh', 'Ru', 'S', 'Sb', 'Se', 'Si', 'Te', 'V', 'Zn'] 
+POCKET_ATOM_LABELS: ['C', 'CA', 'CB', 'CD', 'CD1', 'CD2', 'CE', 'CE1', 'CE2', 'CE3', 'CG', 'CG1', 'CG2', 'CH2', 'CZ', 'CZ2', 'CZ3', 'N', 'ND1', 'ND2', 'NE', 'NE1', 'NE2', 'NH1', 'NH2', 'NZ', 'O', 'OD1', 'OD2', 'OE1', 'OE2', 'OG', 'OG1', 'OH', 'OXT', 'SD', 'SG', 'VOXEL']
+POCKET_EDGE_LABELS: ['atom-atom', 'atom-self', 'atom-voxel', 'voxel-self', 'voxel-voxel']
