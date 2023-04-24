@@ -1,5 +1,3 @@
-pdbbind_dir: '/xdisk/twheeler/jgaiser/deepvs2/pdbbind/'
-
 interaction_profile_file_template: 'structure_data/interaction_profiles/%s_ip.pkl'
 mol_graph_file_template: 'graph_data/mol_graphs/%s_mol.pkl'
 pocket_graph_file_template: 'graph_data/pocket_graphs/%s_pocket.pkl'
