@@ -41,12 +41,12 @@ class EdgeData:
             return None
 
         # tail = np.array([[n1, n2], [n2, n1]])
-        tail = torch.tensor([[n1, n2], [n2, n1]]).int()
+        tail = torch.tensor([[n1, n2], [n2, n1]]).long()
         vector_multiplier = 2
 
         if n1 == n2:
             # tail = np.array([[n1], [n2]])
-            tail = torch.tensor([[n1], [n2]]).int()
+            tail = torch.tensor([[n1], [n2]]).long()
             vector_multiplier = 1
 
         # label_vector = np.zeros(len(self.feature_labels))

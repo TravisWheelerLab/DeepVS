@@ -51,9 +51,16 @@ def generate_voxel_embeds(
 
     VoxEncoder = data_utils.load_class_from_file(vox_encoder_model)
     data_transform = data_utils.load_function_from_file(vox_encoder_data_transform)
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = "cpu"
 
-    vox_encoder = VoxEncoder(**vox_encoder_hyperparams, data_transform=data_transform)
-    vox_encoder.load_state_dict(torch.load(vox_encoder_weights, map_location="cpu"))
+    vox_encoder = VoxEncoder(
+        **vox_encoder_hyperparams,
+        data_transform=data_transform
+        # ).to(device)
+    )
+
+    vox_encoder.load_state_dict(torch.load(vox_encoder_weights, map_location=device))
     vox_encoder.eval()
 
     for pdb_i, pdb_id in enumerate(id_batch):
@@ -79,8 +86,13 @@ def generate_voxel_embeds(
             voxel_graphs.x[:, POCKET_ATOM_LABELS.index("VOXEL")] == 1
         )
 
+        voxel_graphs = voxel_graphs.to(device)
+
         with torch.no_grad():
             out, _ = vox_encoder(voxel_graphs)
+
+        out = out.cpu()
+        voxel_graphs = voxel_graphs.cpu()
 
         poxel_pos = voxel_graphs.pos[voxel_node_indices]
         poxel_x = out[voxel_node_indices]

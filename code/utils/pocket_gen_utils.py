@@ -105,9 +105,9 @@ def generate_voxel_graphs(
             contact_map=pocket_graph.contact_map[voxel_graph_indices[0]],
             beta=pocket_graph.beta[voxel_graph_indices],
             pdb_id=pdb_id,
-            edge_index=torch.tensor(g_edge_index, dtype=torch.long),
-            edge_attr=torch.tensor(g_edge_attr, dtype=torch.float),
-            edge_labels=torch.tensor(g_edge_labels, dtype=torch.long),
+            edge_index=g_edge_index,
+            edge_attr=g_edge_attr,
+            edge_labels=g_edge_labels,
         )
 
         graph_collection.append(vox_graph)
