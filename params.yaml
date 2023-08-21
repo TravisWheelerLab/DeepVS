@@ -1,0 +1,40 @@
+data_dir: '/xdisk/twheeler/jgaiser/deepvs3/training_data/'
+pdbbind_dir: '/xdisk/twheeler/jgaiser/data/pdbbind/full-set/'
+
+# ----- SMILE MOLS ------ #
+mol_graph_file_template: 'graph_data/mol_smi_graphs/%s_mol.pt'
+
+mol_embedder_model: '%s/models/mol_embedder/MolGCN_SMI.py'
+mol_embedder_hyperparams: 
+  hidden_dim: 64
+  feature_dim: 53 
+  out_dim: 9
+mol_embedder_weights: '%s/models/weights/mol_embedder_8-3.m'
+
+poxel_aggregator_model: '%s/models/poxel_aggregator/PoxelGCN.py'
+poxel_aggregator_hyperparams: 
+  in_dim: 64
+  hidden_dim: 64
+  out_dim: 1024
+poxel_aggregator_weights: '%s/models/weights/pox_agg_8-3.m'
+
+mol_aggregator_model: '%s/models/mol_aggregator/MolAggregator.py'
+mol_aggregator_hyperparams:
+  feature_dim: 64
+  hidden_dim: 64
+  out_dim: 1024
+mol_aggregator_weights: '%s/models/weights/mol_agg_8-3.m'
+
+classifier_mlp_model: '%s/models/classifier_mlp/ClassifierMLP.py'
+classifier_mlp_hyperparams:
+  in_dim: 2048
+  hidden_dim: 2048 
+classifier_mlp_weights: '%s/models/weights/classifier_mlp_8-3.m'
+
+active_classifier_model: '%s/models/active_classifier/ActiveClassifier.py'
+active_classifier_hyperparams:
+  in_dim: 1088  
+  hidden_dim: 2048 
+active_classifier_weights: '%s/models/weights/ac_classifier_8-3.m'
+
+# ----- /SMILE_MOS ---- #

@@ -1,51 +1,93 @@
 import torch
 import torch_geometric
 import torch.nn as nn
-
+import torch.nn.functional as F
+from copy import deepcopy
 
 class ActiveClassifier(torch.nn.Module):
-    def __init__(self, poxel_model, poxel_params, mol_model, mol_params, in_dim):
+    def __init__(self, poxel_model, mol_embed_model, mol_agg_model, mlp_model, in_dim, hidden_dim, res_layers=3):
         super(ActiveClassifier, self).__init__()
-        self.pox_pooler = poxel_model(**poxel_params)
-        self.mol_pooler = mol_model(**mol_params)
+        self.pox_agg = poxel_model[0](**poxel_model[1])
+        self.mol_embedder = mol_embed_model[0](**mol_embed_model[1])
+        self.mol_agg = mol_agg_model[0](**mol_agg_model[1])
+        self.classifier_mlp = mlp_model[0](**mlp_model[1])
 
-        self.linear1 = nn.Linear(in_dim, in_dim)
-        self.linear2 = nn.Linear(in_dim, in_dim)
-        self.linear3 = nn.Linear(in_dim, 512)
-        self.linear4 = nn.Linear(512, 1)
+        # if 'weights' in mol_embed_model[1]:
+        #     self.mol_embedder.load_state_dict(torch.load(mol_embed_model[1]['weights']))
 
-        self.relu = nn.ReLU()
+        # self.res_layers = []
 
-    def forward(self, pocket_batch, active_batch, decoy_batch):
-        poxel_embeds = self.pox_pooler(pocket_batch)
+        # for _ in range(res_layers):
+        #     self.res_layers.append(ResLayer(hidden_dim, dr=0.25))
 
-        active_preds, active_embeds = self.mol_pooler(active_batch)
-        print(active_embeds.shape)
-        decoy_preds, decoy_embeds = self.mol_pooler(decoy_batch)
-        # mol_atom_preds = torch.vstack((active_preds, decoy_preds))
+        # self.linear_in = nn.Linear(in_dim, hidden_dim)
+        # self.act = nn.ReLU()
 
-        poxel_actives = torch.hstack((poxel_embeds, active_embeds))
-        poxel_decoys = torch.hstack(
-            (
-                torch.cat([poxel_embeds] * len(decoy_embeds), dim=0),
-                decoy_embeds.repeat_interleave(poxel_embeds.size(0), dim=0),
-            )
-        )
+        # self.res_layers = nn.Sequential(*self.res_layers)
+        self.linear_out = nn.Linear(hidden_dim, 1)
+    
+    def get_pox_model(self):
+        return self.pox_agg
 
-        all_embeds = torch.vstack((poxel_actives, poxel_decoys))
+    def get_mol_embedder(self):
+        return self.mol_embedder
 
-        x = self.linear1(all_embeds)
-        x = self.relu(x)
-        x = F.dropout(x, p=0.5)
+    def get_mol_agg(self):
+        return self.mol_agg
 
-        x = self.linear2(x)
-        x = self.relu(x)
-        x = F.dropout(x, p=0.4)
+    def get_classifier_mlp(self):
+        return self.classifier_mlp
 
-        x = self.linear3(x)
-        x = self.relu(x)
-        x = F.dropout(x, p=0.3)
 
-        x = self.linear4(x)
-        # return x, mol_atom_preds
-        return x
+    def forward(self, pocket_batch, active_batch, decoy_pockets=None, decoy_batch=None):
+        batch_size = len(pocket_batch)
+        poxel_embeds = self.pox_agg(pocket_batch)
+
+        if decoy_pockets:
+            decoy_poxel_embeds = self.pox_agg(decoy_pockets)
+
+        active_atom_embeds, mol_preds = self.mol_embedder(active_batch)
+        active_batch = deepcopy(active_batch)
+        active_batch.x = active_atom_embeds
+        active_mol_embeds = self.mol_agg(active_batch)
+
+        if decoy_batch:
+            decoy_atom_embeds, decoy_mol_preds = self.mol_embedder(decoy_batch)
+            decoy_batch = deepcopy(decoy_batch)
+            decoy_batch.x = decoy_atom_embeds
+            decoy_mol_embeds = self.mol_agg(decoy_batch)
+            all_mol_embeds = torch.vstack((active_mol_embeds,
+                                           decoy_mol_embeds))
+
+            mol_preds = torch.vstack((mol_preds, 
+                                      decoy_mol_preds))  
+
+        else:
+            x = torch.arange(batch_size)
+            rotations = []
+
+            for i in range(len(x)):
+                rotations.append(torch.roll(x, shifts=i))
+
+            mol_embed_indices = torch.cat(rotations)
+            all_mol_embeds =  active_mol_embeds[mol_embed_indices]                                       
+
+        y = torch.zeros(len(all_mol_embeds))
+        y[:batch_size] = 1
+     
+        if decoy_pockets:
+            poxel_embeds = torch.vstack((poxel_embeds, decoy_poxel_embeds))
+        else:
+            poxel_embeds = poxel_embeds.repeat(int(len(all_mol_embeds)/batch_size)+1, 1)
+            poxel_embeds = poxel_embeds[:-(len(poxel_embeds) - len(all_mol_embeds))]
+
+        if len(all_mol_embeds) != len(poxel_embeds):
+            return None, None, None, None, None
+
+        all_embeds = torch.hstack((poxel_embeds, all_mol_embeds))
+
+        # x = self.res_layers(all_embeds)
+        # x = self.linear_out(x)
+        x = self.classifier_mlp(all_embeds)
+        
+        return x,y, mol_preds, poxel_embeds, all_mol_embeds

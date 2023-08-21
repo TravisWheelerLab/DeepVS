@@ -3,8 +3,8 @@ import re
 import itertools
 
 def get_ligand_data(pl_interaction):
-	# function takes object returned by PDBComplex.analyze() method
-	# returns list of list of interactions in format [[TYPE, X, Y, Z]]
+	# Takes object returned by PDBComplex.analyze() method
+	# returns graph of interactions 
     ligand_interaction_data = []
 
     for interaction in pl_interaction.all_itypes:

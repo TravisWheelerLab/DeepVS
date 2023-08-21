@@ -40,3 +40,14 @@ def get_output_paths(custom_output_dir, default_output_dir, default_file_templat
         output_dir = "/".join(file_template.split("/")[:-1]) + "/"
 
     return output_dir, file_template
+
+def interpolate_root(path, root_dir):
+    if "%s" in path:
+        if root_dir[-1] != "/":
+            root_dir += "/"
+        if path[0] == '/':
+            path = path[1:]
+        
+        return path % root_dir
+    else:
+        return path

@@ -112,7 +112,7 @@ def get_bond_features(bond,
     return np.array(bond_feature_vector)
 
 
-def generate_mol_graph(mol, y, atom_labels):
+def generate_mol_graph(mol, atom_labels):
     """
     Inputs:
     
@@ -160,4 +160,4 @@ def generate_mol_graph(mol, y, atom_labels):
     
     # construct Pytorch Geometric data object and return
     EF = torch.ones((E.size(1), 1))
-    return Data(x = X, edge_index = E, edge_attr = EF, y=y)
+    return Data(x = X, edge_index = E, edge_attr = EF)

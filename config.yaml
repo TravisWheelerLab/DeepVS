@@ -1,10 +1,70 @@
 interaction_profile_file_template: 'structure_data/interaction_profiles/%s_ip.pkl'
 mol_graph_file_template: 'graph_data/mol_graphs/%s_mol.pkl'
 pocket_graph_file_template: 'graph_data/pocket_graphs/%s_pocket.pkl'
+full_pocket_graph_file_template: 'graph_data/full_pocket_graphs/%s_pocket.pkl'
 training_sample_file_template: 'graph_data/training_samples/%s_sample.pkl'
 vox_embed_graph_file_template: 'graph_data/vox_embeds/%s_vox.pkl'
+
+vox_embedder_model: '%s/models/voxel_embedder/SimpleGCN.py'
+vox_embedder_hyperparams:
+  hidden_dim: 64 
+  feature_dim: 38
+  out_dim: 9
+vox_embedder_weights: '%s/models/weights/vox_embedder_8-7.m'
+
+mol_embedder_model: '%s/models/mol_embedder/MolGCN.py'
+mol_embedder_hyperparams: 
+  hidden_dim: 64
+  feature_dim: 38
+  out_dim: 9
+mol_embedder_weights: '%s/models/weights/mol_embedder_7-27.m'
+
+poxel_aggregator_model: '%s/models/poxel_aggregator/PoxelGCN.py'
+poxel_aggregator_hyperparams: 
+  in_dim: 64
+  hidden_dim: 64
+  out_dim: 1024
+poxel_aggregator_weights: '%s/models/weights/pox_agg_7-27.m'
+
+mol_aggregator_model: '%s/models/mol_aggregator/MolAggregator.py'
+mol_aggregator_hyperparams:
+  feature_dim: 64
+  hidden_dim: 64
+  out_dim: 1024
+mol_aggregator_weights: '%s/models/weights/mol_agg_7-27.m'
+
+classifier_mlp_model: '%s/models/classifier_mlp/ClassifierMLP.py'
+classifier_mlp_hyperparams:
+  in_dim: 2048
+  hidden_dim: 2048 
+classifier_mlp_weights: '%s/models/weights/classifier_mlp_7-27.m'
+
+active_classifier_model: '%s/models/active_classifier/ActiveClassifier.py'
+active_classifier_hyperparams:
+  in_dim: 1088  
+  hidden_dim: 2048 
+active_classifier_weights: '%s/models/weights/ac_classifier_7-27.m'
+
 
 INTERACTION_LABELS: ['halogenbond', 'hbond_a', 'hbond_d', 'hydroph_interaction', 'pication_c', 'pication_r', 'pistack', 'saltbridge_n', 'saltbridge_p'] 
 MOL_ATOM_LABELS: ['*', 'As', 'B', 'Be', 'Br', 'C', 'Cl', 'Co', 'Cu', 'F', 'Fe', 'H', 'I', 'Ir', 'Mg', 'N', 'O', 'Os', 'P', 'Pt', 'Re', 'Rh', 'Ru', 'S', 'Sb', 'Se', 'Si', 'Te', 'V', 'Zn'] 
 POCKET_ATOM_LABELS: ['C', 'CA', 'CB', 'CD', 'CD1', 'CD2', 'CE', 'CE1', 'CE2', 'CE3', 'CG', 'CG1', 'CG2', 'CH2', 'CZ', 'CZ2', 'CZ3', 'N', 'ND1', 'ND2', 'NE', 'NE1', 'NE2', 'NH1', 'NH2', 'NZ', 'O', 'OD1', 'OD2', 'OE1', 'OE2', 'OG', 'OG1', 'OH', 'OXT', 'SD', 'SG', 'VOXEL']
 POCKET_EDGE_LABELS: ['atom-atom', 'atom-self', 'atom-voxel', 'voxel-self', 'voxel-voxel']
+
+# POCKET_LABEL_COUNT: [1274, 39466, 30005, 63274, 531, 1308, 6562, 5672, 2144]
+POCKET_LABEL_COUNT: [2548,  78945, 60011, 126140, 1062, 2616, 13124, 11344, 4288]
+MOL_LABEL_COUNT: [1274, 39341, 29845, 63267, 531, 7416, 36043, 5672, 2144]
+
+mol_atom_feature_list: [[5, 6, 7, 8, 9, 14, 15, 16, 17, 23, 26, 29, 33, 34, 35, 44, 51, 53, 77, 78],
+                        [0, 1, 2],
+                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        [4, 5, 6, 7, 8],
+                        [0, 1, 2, 3, 4, 5],
+                        [0, 1],
+                        [0, 2, 3, 4, 5, 6],
+                        [0, 1],
+                        [0, 1]]
+                
+mol_edge_feature_list: [[1, 2, 3, 4],
+                        [0, 1, 2],
+                        [0, 1]]

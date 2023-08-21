@@ -45,7 +45,6 @@ def generate_mol_graphs(
 
     mol_sdf_ft = pdbbind_dir + "%s/%s_ligand.sdf"
     pl_data_file = pdbbind_dir + "/index/INDEX_general_PL_data.2020"
-    print(pl_data_file)
     pl_data = {}
 
     with open(pl_data_file) as data_file_in:
@@ -88,10 +87,9 @@ def generate_mol_graphs(
             if atom.GetSymbol() == "H":
                 H_count += 1
                 heavy_marker.append(0)
-                continue
-
-            heavy_atom_pos.append([atom_x, atom_y, atom_z])
-            heavy_marker.append(1)
+            else:
+                heavy_atom_pos.append([atom_x, atom_y, atom_z])
+                heavy_marker.append(1)
 
         mol_y = np.zeros((len(mol_pos), len(INTERACTION_LABELS)))
 
@@ -106,6 +104,7 @@ def generate_mol_graphs(
 
             # list of atomic distances from interaction location to atoms in ligand
             # list items correspond in `pdb_data_distances` correspond to list items in `pdb_heavy_atom_pos`
+            # (Hydrogens are always listed last in the SDF, so indices of heavy_atom_pos correspond to atoms in mol structure.)
             pdb_data_distances = np.array(
                 [mol_gen_utils.get_distance(x, interaction_xyz) for x in heavy_atom_pos]
             )
@@ -139,9 +138,9 @@ def generate_mol_graphs(
 
         try:
             # molecule = Chem.rdmolfiles.MolFromPDBBlock(pdb_file_content, removeHs=False)
-            g = mol_gen_utils.generate_mol_graph(
-                mol, torch.tensor(mol_y).float(), ATOM_LABELS
-            )
+            g = mol_gen_utils.generate_mol_graph(mol, ATOM_LABELS)
+            g.y = torch.tensor(mol_y).float()
+
             mol_pos = torch.tensor(mol_pos)
             heavy_marker = torch.tensor(heavy_marker)
             g.heavy = heavy_marker
